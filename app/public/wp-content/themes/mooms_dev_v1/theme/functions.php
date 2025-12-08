@@ -141,17 +141,33 @@ add_action('init', static function () {
     }, 10, 2);
 });
 
-// Optimize style loading
-add_filter('style_loader_tag', function ($html, $handle) {
-    return str_replace("media='all' />", 'media="all" rel="preload" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">', $html);
-}, 10, 2);
+// Style preload logic is handled in theme/setup/assets.php for better control
 
-// Prevent thumbnail generation
-function remove_all_image_sizes($sizes)
-{
-    return array();
-}
-add_filter('intermediate_image_sizes_advanced', 'remove_all_image_sizes');
+// Image thumbnail optimization - only generate sizes that are actually used
+add_filter('intermediate_image_sizes_advanced', function($sizes) {
+    // Remove unused WordPress default sizes to save storage and processing time
+    // Only keep 'thumbnail' as it's commonly used
+    // Remove 'medium', 'medium_large', 'large' if not used in theme
+    
+    $remove_sizes = [
+        'medium_large', // 768px - rarely used
+        '1536x1536',    // WordPress default - not needed
+        '2048x2048',    // WordPress default - not needed
+    ];
+    
+    foreach ($remove_sizes as $size) {
+        if (isset($sizes[$size])) {
+            unset($sizes[$size]);
+        }
+    }
+    
+    return $sizes;
+});
+
+// Register custom image sizes that theme actually uses
+// Uncomment and adjust as needed based on your theme requirements
+// add_image_size('blog-thumbnail', 600, 400, true);
+// add_image_size('featured-large', 1200, 630, true);
 
 // =============================================================================
 // EDITOR CUSTOMIZATIONS

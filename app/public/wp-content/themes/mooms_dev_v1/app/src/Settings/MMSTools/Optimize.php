@@ -76,22 +76,12 @@ class Optimize
 
 	public function disableGutenbergCss()
 	{
-		add_action('wp_enqueue_scripts', function () {
-			if ( is_front_page() ) {
-				wp_dequeue_style( 'wp-block-library' );
-				wp_dequeue_style( 'wp-block-library-theme' );
-				wp_dequeue_style( 'wc-blocks-style' );
-			}
-		});
+		add_action('wp_enqueue_scripts', [$this, 'enqueueScriptsCallback']);
 	}
 
 	public function disableClassicCss()
 	{
-		add_action('wp_enqueue_scripts', function () {
-			if ( is_front_page() ) {
-				wp_dequeue_style( 'classic-theme-styles' );
-			}
-		});
+		// Handled in enqueueScriptsCallback
 	}
 
 	public function disableEmoji()
@@ -109,16 +99,41 @@ class Optimize
 
 	public function enableInstantPage()
 	{
-		add_action('wp_enqueue_scripts', function () {
-			wp_enqueue_script('instantpage', get_stylesheet_directory_uri() . '/../resources/admin/lib/instantpage.js', array(), '5.7.0', true);
-		});
+		// Handled in enqueueScriptsCallback
 	}
 
 	public function enableSmoothScroll()
 	{
-		add_action('wp_enqueue_scripts', function () {
+		// Handled in enqueueScriptsCallback
+	}
+	
+	/**
+	 * Consolidated wp_enqueue_scripts callback
+	 * Combines all enqueue operations into one hook to improve performance
+	 */
+	public function enqueueScriptsCallback()
+	{
+		// Disable Gutenberg CSS (from disableGutenbergCss)
+		if (is_front_page() && get_option('_disable_gutenberg_css') === 'yes') {
+			wp_dequeue_style( 'wp-block-library' );
+			wp_dequeue_style( 'wp-block-library-theme' );
+			wp_dequeue_style( 'wc-blocks-style' );
+		}
+		
+		// Disable Classic CSS (from disableClassicCss)
+		if (is_front_page() && get_option('_disable_classic_css') === 'yes') {
+			wp_dequeue_style( 'classic-theme-styles' );
+		}
+		
+		// Enable InstantPage (from enableInstantPage)
+		if (get_option('_enable_instant_page') === 'yes') {
+			wp_enqueue_script('instantpage', get_stylesheet_directory_uri() . '/../resources/admin/lib/instantpage.js', array(), '5.7.0', true);
+		}
+		
+		// Enable Smooth Scroll (from enableSmoothScroll)
+		if (get_option('_enable_smooth_scroll') === 'yes') {
 			wp_enqueue_script('smooth-scroll', get_stylesheet_directory_uri() . '/../resources/admin/lib/smooth-scroll.min.js', array(), '1.4.16', true);
-		});
+		}
 	}
 
 	public function enableLazyLoadingImages()

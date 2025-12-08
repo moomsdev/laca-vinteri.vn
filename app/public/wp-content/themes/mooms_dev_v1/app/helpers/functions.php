@@ -254,26 +254,52 @@ function getRelatePosts($postId = null, $postCount = null)
     $postCount = $postCount ?: get_option('posts_per_page');
     $thisPost = $postId ? get_post($postId) : $post;
 
+    // Cache key based on post ID and count
+    $cache_key = 'related_posts_' . $thisPost->ID . '_' . $postCount;
+    $cached = wp_cache_get($cache_key, 'mms_related_posts');
+    
+    if ($cached !== false) {
+        return $cached;
+    }
+
     $taxonomies = get_post_taxonomies($thisPost->ID);
     $arrTaxQuery = ['relation' => 'OR'];
-    foreach ($taxonomies as $taxonomy) {
-        $terms = get_the_terms($thisPost->ID, $taxonomy);
-        if ($terms) {
+    
+    // Use wp_get_object_terms to get all terms in one query instead of N queries
+    $all_terms = wp_get_object_terms($thisPost->ID, $taxonomies);
+    
+    if (!empty($all_terms) && !is_wp_error($all_terms)) {
+        // Group terms by taxonomy
+        $terms_by_tax = [];
+        foreach ($all_terms as $term) {
+            $terms_by_tax[$term->taxonomy][] = $term->term_id;
+        }
+        
+        // Build tax_query
+        foreach ($terms_by_tax as $taxonomy => $term_ids) {
             $arrTaxQuery[] = [
                 'taxonomy' => $taxonomy,
                 'field' => 'term_id',
-                'terms' => wp_list_pluck($terms, 'term_id'),
+                'terms' => $term_ids,
             ];
         }
     }
 
-    return new WP_Query([
+    $query = new WP_Query([
         'post_type' => $thisPost->post_type,
         'post_status' => 'publish',
         'posts_per_page' => $postCount,
         'post__not_in' => [$thisPost->ID],
         'tax_query' => $arrTaxQuery,
+        'no_found_rows' => true,  // Don't count total rows for pagination - faster
+        'update_post_meta_cache' => false,  // Don't update meta cache - we're just listing
+        'update_post_term_cache' => false,  // Don't update term cache - not needed
     ]);
+    
+    // Cache the result for 1 hour
+    wp_cache_set($cache_key, $query, 'mms_related_posts', HOUR_IN_SECONDS);
+    
+    return $query;
 }
 
 function getLatestPosts($postType = 'post', $postCount = null)
@@ -359,19 +385,45 @@ function getVideoUrl($video_link)
         if (strpos($video_link, 'youtube.com') !== false || strpos($video_link, 'youtu.be') !== false) {
             $youtube_embed_url = getYoutubeEmbedUrl($video_link);
             if (!empty($youtube_embed_url)) {
-                $video_html = '<div class="video-embed"><iframe title="YouTube video" src="' . $youtube_embed_url . '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
+                $video_html = '<div class="video-embed"><iframe title="YouTube video" src="' . esc_url($youtube_embed_url) . '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
             }
         } elseif (strpos($video_link, 'vimeo.com') !== false) {
             $video_ID = substr(parse_url($video_link, PHP_URL_PATH), 1);
-            $vimeo_api_url = "https://vimeo.com/api/v2/video/{$video_ID}.json";
-
-            $hash = @file_get_contents($vimeo_api_url);
-            if ($hash) {
-                $hash_data = json_decode($hash);
-                if (isset($hash_data[0])) {
-                    $title = $hash_data[0]->title;
-                    $video_html = '<div class="video-embed"><iframe title="Video: ' . $title . '" src="https://player.vimeo.com/video/' . $video_ID . '" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe></div>';
+            
+            // Cache Vimeo API response for 24 hours
+            $cache_key = 'vimeo_video_' . md5($video_ID);
+            $cached_data = get_transient($cache_key);
+            
+            if ($cached_data !== false) {
+                $hash_data = $cached_data;
+            } else {
+                $vimeo_api_url = "https://vimeo.com/api/v2/video/{$video_ID}.json";
+                
+                // Use wp_remote_get instead of file_get_contents for better WordPress compatibility
+                $response = wp_remote_get($vimeo_api_url, [
+                    'timeout' => 10,
+                    'sslverify' => true
+                ]);
+                
+                if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
+                    $body = wp_remote_retrieve_body($response);
+                    $hash_data = json_decode($body);
+                    
+                    if ($hash_data && isset($hash_data[0])) {
+                        // Cache for 24 hours (DAY_IN_SECONDS)
+                        set_transient($cache_key, $hash_data, DAY_IN_SECONDS);
+                    } else {
+                        $hash_data = null;
+                    }
+                } else {
+                    error_log('Vimeo API Error: ' . ($is_wp_error($response) ? $response->get_error_message() : 'Invalid response'));
+                    $hash_data = null;
                 }
+            }
+            
+            if ($hash_data && isset($hash_data[0])) {
+                $title = $hash_data[0]->title;
+                $video_html = '<div class="video-embed"><iframe title="Video: ' . esc_attr($title) . '" src="https://player.vimeo.com/video/' . esc_attr($video_ID) . '" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe></div>';
             }
         }
     }
