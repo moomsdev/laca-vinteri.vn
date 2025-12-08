@@ -70,7 +70,7 @@ Block::make(__('Block blog', 'mms'))
                             </a>
                         </div>
                         <div class="desc">
-                            <?= apply_filters('the_content', $desc); ?>
+                            <?php echo apply_filters('the_content', $desc); ?>
                         </div>
                     </div>
                 </div>

@@ -32,16 +32,16 @@ Block::make(__('Block SERVICE', 'mms'))
                 <div class="block-service__list">
                     <?php
                     foreach ($services as $service) :
-                        $permalink = get_the_permalink($service['id']);
-                        $title = get_the_title($service['id']);
-                        $desc = get_the_excerpt($service['id']);
-                        $firstLetter = substr($title, 0, 1);
+                        $permalink = !empty($service['id']) ? get_the_permalink($service['id']) : '';
+                        $title = !empty($service['id']) ? get_the_title($service['id']) : '';
+                        $desc = !empty($service['id']) ? get_the_excerpt($service['id']) : '';
+                        $firstLetter = !empty($title) ? substr($title, 0, 1) : '';
                     ?>
                         <div class="block-service__item">
                             <a href="<?php echo $permalink; ?>" class="item__link">
-                                <span class="item__icon"><?php echo $firstLetter; ?></span>
-                                <h3 class="item__title"><?php echo $title; ?></h3>
-                                <div class="item__desc"><?php echo $desc; ?></div>
+                                <span class="item__icon"><?php echo esc_html($firstLetter); ?></span>
+                                <h3 class="item__title"><?php echo esc_html($title); ?></h3>
+                                <div class="item__desc"><?php echo esc_html($desc); ?></div>
                             </a>
                         </div>
                     <?php

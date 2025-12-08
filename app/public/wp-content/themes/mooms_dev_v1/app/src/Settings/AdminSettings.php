@@ -643,12 +643,12 @@ class AdminSettings
 					Field::make('separator', 'smtp_separator_2', __('Thông tin email hệ thống', 'mms')),
 					Field::make('text', 'smtp_username', __('Địa chỉ email', 'mms'))
 						->set_width(50)
-						->set_default_value('mooms.dev@gmail.com'),
+						->set_help_text('Nhập địa chỉ email SMTP của bạn'),
 					Field::make('text', 'smtp_password', __('Mật khẩu', 'mms'))
 						->set_width(50)
 						->set_attribute('type', 'password')
 						->set_attribute('data-field', 'password-field')
-						->set_default_value('utakxthdfibquxos'),
+						->set_help_text('Nhập mật khẩu ứng dụng (App Password) từ Gmail'),
 				])
 				->add_tab(__('Google OAuth', 'mms'), [
 					Field::make('text', 'google_client_id', __('Client ID', 'mms'))

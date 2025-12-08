@@ -18,6 +18,9 @@ if (!defined('ABSPATH')) {
  */
 add_action('wp_ajax_update_custom_sort_order', 'updateCustomSortOrder');
 function updateCustomSortOrder() {
+    // Kiểm tra nonce để bảo vệ CSRF
+    check_ajax_referer('update_custom_sort_order', 'nonce');
+    
     // Kiểm tra tham số đầu vào
     if (empty($_POST['post_ids']) || empty($_POST['current_page'])) {
         wp_send_json_error(['message' => 'Missing parameters.']);
@@ -52,6 +55,9 @@ add_action('wp_ajax_nopriv_update_post_thumbnail_id', 'updatePostThumbnailId');
 add_action('wp_ajax_update_post_thumbnail_id', 'updatePostThumbnailId');
 
 function updatePostThumbnailId() {
+    // Kiểm tra nonce để bảo vệ CSRF
+    check_ajax_referer('update_post_thumbnail', 'nonce');
+    
     // Kiểm tra các tham số post_id và attachment_id
     if (empty($_POST['post_id']) || empty($_POST['attachment_id'])) {
         wp_send_json_error(['message' => 'Missing parameters.']);

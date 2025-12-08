@@ -21,7 +21,7 @@ Block::make(__('Block ABOUT ME', 'mms'))
     ])
     ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
         $circle = !empty($fields['welcome_content']) ? esc_html($fields['welcome_content']) : '';
-        $image = getImageUrlById($fields['about_image']);
+        $image = !empty($fields['about_image']) ? getImageUrlById($fields['about_image']) : '';
         $title = !empty($fields['about_title']) ? esc_html($fields['about_title']) : '';
         $desc = !empty($fields['about_desc']) ? apply_filters('the_content', $fields['about_desc']) : '';
         ?>
@@ -41,7 +41,7 @@ Block::make(__('Block ABOUT ME', 'mms'))
 
                 <div class="block-about__img">
                     <figure>
-                        <img src="<?php echo $image; ?>" alt="<?php echo $title; ?>" loading="lazy">
+                        <img src="<?php echo esc_url($image); ?>" alt="<?php echo esc_attr($title); ?>" loading="lazy">
                     </figure>
                 </div>
             </div>

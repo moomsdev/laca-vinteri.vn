@@ -10,7 +10,6 @@ if (!defined('ABSPATH')) {
 // SECURITY & PERMISSIONS
 // =============================================================================
 
-define('ALLOW_UNFILTERED_UPLOADS', true);
 define('SUPER_USER', ['mooms.dev']);
 
 // =============================================================================
