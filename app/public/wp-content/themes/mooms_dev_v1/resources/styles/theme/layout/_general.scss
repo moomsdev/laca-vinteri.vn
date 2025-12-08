@@ -19,10 +19,10 @@ body {
     font-family: $primaryFont !important;
     font-weight: $regular !important;
     line-height: 1.5em !important;
-    color: $primaryColor !important;
+    color: $textColor !important;
     scroll-behavior: smooth;
 
-    @include resFont(1.6, 1.8, true);
+    @include resFont(1.4, 1.6, true);
 }
 
 ::-webkit-scrollbar {
@@ -56,8 +56,8 @@ li::selection,
 button::selection,
 input::selection,
 bdi::selection {
-  color: #fff;
-  background-color: $secondaryColor;
+  // color: #fff;
+  // background-color: $secondaryColor;
 }
 
 h1,

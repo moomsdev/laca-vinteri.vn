@@ -17,11 +17,14 @@ $optionsPage = Container::make('theme_options', __('MMS Theme', 'mms'))
 	->set_page_menu_position(3)
 	->add_tab(__('Branding | Thương hiệu', 'mms'), [
 		Field::make('color', 'primary_color', __('Primary Color', 'mms'))
-		->set_width(50)
+		->set_width(33.33)
 		->set_default_value('#010101'),
 		Field::make('color', 'secondary_color', __('Secondary Color', 'mms'))
-		->set_width(50)
+		->set_width(33.33)
 		->set_default_value('#626262'),
+		Field::make('color', 'text_color', __('Text Color', 'mms'))
+		->set_width(33.33)
+		->set_default_value('#fff'),
 
 		Field::make('image', 'logo', __('Logo', 'mms'))
 			->set_width(33.33),
@@ -29,23 +32,35 @@ $optionsPage = Container::make('theme_options', __('MMS Theme', 'mms'))
 			->set_width(33.33),
 		Field::make('image', 'default_image', __('Default image | Hình ảnh mặc định', 'mms'))
 			->set_width(33.33),
-
-
-		Field::make('textarea', 'slogan' . currentLanguage(), __('', 'mms'))
-			->set_attribute('placeholder', 'mooms.dev slogan'),
 	])
 
 	->add_tab(__('Contact | Liên hệ', 'mms'), [
 		Field::make('html', 'info', __('', 'mms'))
 			->set_html('----<i> Information | Thông tin </i>----'),
+
+		// Address
 		Field::make('text', 'address' . currentLanguage(), __('', 'mms'))
 			->set_attribute('placeholder', 'Address | Địa chỉ'),
+
+		// Email
 		Field::make('text', 'email', __('', 'mms'))
 			->set_width(33.33)
 			->set_attribute('placeholder', 'Email'),
+
+		// Phone number
 		Field::make('text', 'phone_number', __('', 'mms'))
 			->set_width(33.33)
 			->set_attribute('placeholder', 'Phone number | Số điện thoại'),
+
+		// Working hours
+		Field::make('text','working_hours', __('', 'mms'))
+			->set_width(33.33)
+			->set_attribute('placeholder', 'Working hours | Giờ làm việc'),
+
+		//Slogan
+		Field::make('text', 'slogan', __('', 'mms'))
+			->set_width(33.33)
+			->set_attribute('placeholder', 'Slogan | Slogan'),
 
 		Field::make('html', 'socials', __('', 'mms'))
 			->set_html('----<i> Socials | Mạng xã hội </i>----'),
