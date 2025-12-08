@@ -56,7 +56,14 @@
 <body <?php body_class(); ?>>
 	<?php
 	app_shim_wp_body_open();
+	?>
+	
+	<!-- Skip to content link for accessibility -->
+	<a class="skip-link screen-reader-text" href="#main-content">
+		<?php esc_html_e('Skip to content', 'mms'); ?>
+	</a>
 
+	<?php
 	if (is_home() || is_front_page()) :
 		// Use screen-reader-text instead of d-none for better SEO
 		// Screen readers can still see H1, but it's visually hidden

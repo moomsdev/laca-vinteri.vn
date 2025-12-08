@@ -34,7 +34,7 @@ function mm_user_login()
 
     $user = wp_signon([
         'user_login'    => sanitize_user($_POST['user_login']),
-        'user_password' => $_POST['password'],
+        'user_password' => $_POST['password'], // wp_signon handles hashing
         'remember'      => true,
     ], false);
 

@@ -21,7 +21,7 @@ endif;
 ?>
 
 <!-- Main content area where page-specific content will be injected -->
-<main id="main_content">
+<main id="main-content" role="main">
     <?php
     // Render the main layout content
     WPEmerge\layout_content();

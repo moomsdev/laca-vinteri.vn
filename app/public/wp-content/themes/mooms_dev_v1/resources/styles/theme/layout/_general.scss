@@ -180,3 +180,61 @@ p:empty {
     width: 1px;
     word-wrap: normal !important;
 }
+
+// Skip to content link - appears on focus for keyboard navigation
+.skip-link {
+    background-color: #f1f1f1;
+    box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.2);
+    color: #21759b;
+    display: block;
+    font-family: "Open Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    left: -9999em;
+    outline: none;
+    padding: 15px 23px 14px;
+    text-decoration: none;
+    text-transform: none;
+    top: -9999em;
+    z-index: 100000;
+
+    &:focus {
+        clip: auto;
+        clip-path: none;
+        display: block;
+        height: auto;
+        left: 6px;
+        top: 7px;
+        width: auto;
+        z-index: 100000;
+    }
+}
+
+// Focus indicators for better keyboard navigation
+a:focus,
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+    outline: 2px solid $primaryColor;
+    outline-offset: 2px;
+}
+
+// Remove outline only when using mouse (not keyboard)
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible),
+select:focus:not(:focus-visible) {
+    outline: none;
+}
+
+// Enhanced focus for keyboard users
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 3px solid $primaryColor;
+    outline-offset: 2px;
+}

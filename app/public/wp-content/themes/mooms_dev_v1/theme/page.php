@@ -12,7 +12,7 @@
 <?php
 	
 ?>
-<main id="main">
+<main id="main-content" role="main">
     <?php 
     if (!is_front_page() && is_page()): 
 		theBreadcrumb();

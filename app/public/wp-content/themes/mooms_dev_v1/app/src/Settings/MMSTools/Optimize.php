@@ -168,9 +168,14 @@ class Optimize
     {
         $attr['loading'] = 'lazy';
         $attr['decoding'] = 'async';
+        
+        // Add alt text if missing (critical for SEO and accessibility)
         if (empty($attr['alt'])) {
-            $attr['alt'] = get_the_title($attachment->ID) ?: 'Image';
+            $post_title = get_the_title($attachment->ID);
+            $attr['alt'] = !empty($post_title) ? esc_attr($post_title) : esc_attr__('Image', 'mms');
         }
+        
+        // Add dimensions if missing
         if (empty($attr['width']) || empty($attr['height'])) {
             $image_meta = wp_get_attachment_metadata($attachment->ID);
             if (!empty($image_meta['width']) && !empty($image_meta['height'])) {

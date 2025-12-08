@@ -29,9 +29,14 @@
 </nav> -->
 
 <!-- ScrolltoTop -->
-<div id="totop" class="init">
-    <i class="fa fa-chevron-up"></i>
-</div>
+<button 
+    id="totop" 
+    class="init" 
+    aria-label="<?php esc_attr_e('Scroll to top', 'mms'); ?>" 
+    title="<?php esc_attr_e('Back to top', 'mms'); ?>"
+    type="button">
+    <i class="fa fa-chevron-up" aria-hidden="true"></i>
+</button>
 
 <?php wp_footer(); ?>
 </body>
