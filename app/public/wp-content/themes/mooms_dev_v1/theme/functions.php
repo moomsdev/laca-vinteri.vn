@@ -83,6 +83,7 @@ WPEmerge::alias('Theme', \WPEmergeTheme\Facades\Theme::class);
 
 // Load helpers
 require_once APP_APP_DIR . 'helpers.php';
+require_once APP_APP_DIR . 'helpers/seo.php';
 
 // Bootstrap Theme
 Theme::bootstrap(require APP_APP_DIR . 'config.php');
