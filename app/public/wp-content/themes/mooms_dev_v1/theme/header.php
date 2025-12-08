@@ -58,7 +58,9 @@
 	app_shim_wp_body_open();
 
 	if (is_home() || is_front_page()) :
-		echo '<h1 class="site-name d-none">' . get_bloginfo('name') . '</h1>';
+		// Use screen-reader-text instead of d-none for better SEO
+		// Screen readers can still see H1, but it's visually hidden
+		echo '<h1 class="site-name screen-reader-text">' . esc_html(get_bloginfo('name')) . '</h1>';
 	endif;
 	?>
 

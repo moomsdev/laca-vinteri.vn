@@ -167,3 +167,29 @@ function mms_add_schema_markup() {
     echo '</script>' . "\n";
 }
 add_action('wp_head', 'mms_add_schema_markup', 10);
+
+/**
+ * Add canonical URL
+ */
+function mms_add_canonical_url() {
+    $canonical_url = '';
+    
+    if (is_singular()) {
+        $canonical_url = get_permalink();
+    } elseif (is_category() || is_tag() || is_tax()) {
+        $term = get_queried_object();
+        $canonical_url = get_term_link($term);
+    } elseif (is_home() || is_front_page()) {
+        $canonical_url = home_url('/');
+    } elseif (is_author()) {
+        $canonical_url = get_author_posts_url(get_queried_object_id());
+    } elseif (is_archive()) {
+        $canonical_url = get_permalink();
+    }
+    
+    if (!empty($canonical_url) && !is_wp_error($canonical_url)) {
+        echo '<link rel="canonical" href="' . esc_url($canonical_url) . '">' . "\n";
+    }
+}
+add_action('wp_head', 'mms_add_canonical_url', 1);
+
