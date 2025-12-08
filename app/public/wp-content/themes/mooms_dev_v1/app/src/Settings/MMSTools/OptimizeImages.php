@@ -881,12 +881,13 @@ class OptimizeImages
      */
     public static function compress_and_convert_to_webp($upload)
     {
-        // Kiểm tra cấu hình
-        if (!self::should_optimize()) {
+        $settings = self::get_settings();
+        
+        // CRITICAL: Chỉ chuyển đổi WebP nếu tính năng được BẬT
+        if (!$settings['enable_webp_conversion']) {
             return $upload;
         }
-
-        $settings = self::get_settings();
+        
         
         // Chỉ xử lý hình ảnh
         if (!isset($upload['type']) || strpos($upload['type'], 'image/') !== 0) {
@@ -1007,12 +1008,13 @@ class OptimizeImages
      */
     public static function compress_image_on_upload($file)
     {
-        // Kiểm tra cấu hình
-        if (!self::should_optimize()) {
+        $settings = self::get_settings();
+        
+        // CRITICAL: Chỉ nén ảnh nếu tính năng được BẬT
+        if (!$settings['enable_compression_image']) {
             return $file;
         }
-
-        $settings = self::get_settings();
+        
         
         // Chỉ xử lý hình ảnh
         if (!isset($file['type']) || strpos($file['type'], 'image/') !== 0) {

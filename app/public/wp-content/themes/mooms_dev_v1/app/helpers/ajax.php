@@ -1,5 +1,47 @@
 <?php
 
+/**
+ * AJAX Search Handler
+ */
+add_action('wp_ajax_nopriv_ajax_search', 'mms_ajax_search');
+add_action('wp_ajax_ajax_search', 'mms_ajax_search');
+
+function mms_ajax_search() {
+    // TODO: Uncomment nonce check sau khi thêm nonce vào frontend
+    // check_ajax_referer('ajax_search_nonce', 'nonce');
+    
+    if (!isset($_GET['s'])) {
+        wp_die();
+    }
+    
+    $search_query = sanitize_text_field($_GET['s']);
+    
+    $args = array(
+        'post_type' => ['post', 'service', 'blog'],
+        'posts_per_page' => 10,
+        's' => $search_query,
+        'post_status' => 'publish'
+    );
+    
+    $query = new WP_Query($args);
+    
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            echo '<div class="search-result-item">';
+            echo '<a href="' . esc_url(get_permalink()) . '">';
+            echo '<h4>' . esc_html(get_the_title()) . '</h4>';
+            echo '</a>';
+            echo '</div>';
+        }
+    } else {
+        echo '<div class="no-results">' . esc_html__('Không có kết quả', 'mms') . '</div>';
+    }
+    
+    wp_reset_postdata();
+    wp_die();
+}
+
 // =============================================================================
 // AJAX HANDLERS - CUSTOM SORT, THUMBNAIL, CONTACT FORM, LOAD PAGE
 // =============================================================================

@@ -164,16 +164,6 @@ function tinymce_allow_unsafe_link_target($mceInit)
 }
 
 // =============================================================================
-// SCRIPTS & STYLES
-// =============================================================================
-
-function my_theme_enqueue_scripts()
-{
-    wp_localize_script('my-theme-script', 'ajaxurl', admin_url('admin-ajax.php'));
-}
-add_action('wp_enqueue_scripts', 'my_theme_enqueue_scripts');
-
-// =============================================================================
 // AUTOLOAD COMPONENTS
 // =============================================================================
 
@@ -198,78 +188,6 @@ foreach ($folders as $folder) {
 // =============================================================================
 // AJAX SEARCH
 // =============================================================================
-
-function ajax_search()
-{
-    // Kiểm tra nếu là request AJAX và có tham số 's'
-    if (isset($_GET['s'])) {
-        $search_query = sanitize_text_field($_GET['s']);
-
-        $args = array(
-            'post_type' => ['post', 'service', 'blog'], // Loại post bạn muốn tìm kiếm (có thể là 'post', 'page', hoặc loại post tùy chỉnh)
-            'posts_per_page' => 10, // Số lượng bài viết bạn muốn lấy
-            's' => $search_query,
-        );
-
-        $query = new WP_Query($args);
-
-        if ($query->have_posts()) {
-            while ($query->have_posts()) {
-                $query->the_post();
-                // Output HTML cho từng bài viết
-                echo '<div class="search-result-item">';
-                echo '<a href="' . get_permalink() . '">';
-                echo '<h4>' . get_the_title() . '</h4>';
-                echo '</a>';
-                echo '</div>';
-            }
-        } else {
-            echo '<div class="no-results">' . __('Không có kết quả', 'mms') . '</div>';
-        }
-        wp_reset_postdata();
-    }
-    die(); // Dừng script tại đây
-}
-
-add_action('wp_ajax_nopriv_ajax_search', 'ajax_search');
-add_action('wp_ajax_ajax_search', 'ajax_search');
-function custom_ajax_script()
-{
-    ?>
-    <script type="text/javascript">
-        jQuery(document).ready(function ($) {
-            $('#search-input').on('input', function () {
-                var searchQuery = $(this).val();
-
-                if (searchQuery.length > 2) {
-                    $.ajax({
-                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                        type: 'GET',
-                        data: {
-                            action: 'ajax_search',
-                            s: searchQuery
-                        },
-                        beforeSend: function () {
-                            // Bạn có thể hiển thị một biểu tượng loading ở đây
-                        },
-                        success: function (response) {
-                            // Hiển thị kết quả tìm kiếm
-                            $('.modal-body .search-results')
-                                .html(response);
-                        },
-                        error: function () {
-                            // Hiển thị thông báo lỗi nếu có
-                        }
-                    });
-                } else {
-                    $('.modal-body .search-results').html('');
-                }
-            });
-        });
-    </script>
-    <?php
-}
-add_action('wp_footer', 'custom_ajax_script');
 
 // =============================================================================
 // CUSTOM POST TYPES

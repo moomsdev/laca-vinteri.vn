@@ -33,16 +33,22 @@ function app_action_theme_enqueue_assets()
     /**
      * Main JavaScript bundle (deferred)
      */
-    Assets::enqueueScript('theme-js-bundle', $template_dir . '/dist/theme.js', ['jquery'], true);
+    // Main theme JS bundle
+    Assets::enqueueScript('theme-js-bundle', 'dist/theme.js', ['jquery'], true, [
+        'defer' => true
+    ]);
+    
+    // AJAX Search functionality
+    Assets::enqueueScript('ajax-search', 'resources/scripts/theme/ajax-search.js', ['jquery', 'theme-js-bundle'], true, [
+        'defer' => true
+    ]);
 
-    /**
-     * Conditional assets based on page type
-     */
+    // Archive page scripts
     if (is_home() || is_archive() || is_search()) {
-        if (file_exists(get_template_directory() . '/dist/archive.js')) {
-            wp_enqueue_script('theme-archive-js', $template_dir . '/dist/archive.js', ['theme-js-bundle'], $version, true);
-        }
+    if (file_exists(get_template_directory() . '/dist/archive.js')) {
+        wp_enqueue_script('theme-archive-js', $template_dir . '/dist/archive.js', ['theme-js-bundle'], $version, true);
     }
+}
 
     if (is_single() && comments_open()) {
         if (file_exists(get_template_directory() . '/dist/comments.js')) {
