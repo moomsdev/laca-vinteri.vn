@@ -5,6 +5,7 @@ import "./pages/*.js";
 import "popper.js";
 import "bootstrap/dist/js/bootstrap.bundle";
 import { gsap } from "gsap";
+import "./ajax-search.js"; // AJAX Live Search functionality
 
 import Swup from 'swup';
 import Swiper from "swiper/swiper-bundle.min";

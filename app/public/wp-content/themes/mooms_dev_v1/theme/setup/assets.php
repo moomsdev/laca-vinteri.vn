@@ -33,14 +33,19 @@ function app_action_theme_enqueue_assets()
     /**
      * Main JavaScript bundle (deferred)
      */
-    // Main theme JS bundle
-    Assets::enqueueScript('theme-js-bundle', 'dist/theme.js', ['jquery'], true, [
-        'defer' => true
-    ]);
+    // Main theme JS bundle - using wp_enqueue_script with full path
+    wp_enqueue_script(
+        'theme-js-bundle',
+        $template_dir . '/dist/theme.js',
+        ['jquery'],
+        $version,
+        true
+    );
     
-    // AJAX Search functionality
-    Assets::enqueueScript('ajax-search', 'resources/scripts/theme/ajax-search.js', ['jquery', 'theme-js-bundle'], true, [
-        'defer' => true
+    // Localize AJAX data for search (now bundled in theme.js)
+    wp_localize_script('theme-js-bundle', 'ajaxData', [
+        'ajaxurl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('search_nonce'),
     ]);
 
     // Archive page scripts

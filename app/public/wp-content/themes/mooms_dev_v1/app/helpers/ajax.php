@@ -7,38 +7,200 @@ add_action('wp_ajax_nopriv_ajax_search', 'mms_ajax_search');
 add_action('wp_ajax_ajax_search', 'mms_ajax_search');
 
 function mms_ajax_search() {
-    // TODO: Uncomment nonce check sau khi thêm nonce vào frontend
-    // check_ajax_referer('ajax_search_nonce', 'nonce');
+    // Get search query
+    $search_query = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
     
-    if (!isset($_GET['s'])) {
-        wp_die();
+    // Minimum search length
+    if (strlen($search_query) < 2) {
+        wp_send_json_error(['message' => 'Vui lòng nhập ít nhất 2 ký tự']);
+        return;
     }
     
-    $search_query = sanitize_text_field($_GET['s']);
+    $html = '';
+    $has_results = false;
+    $default_img = get_template_directory_uri() . '/resources/images/placeholder.png';
     
-    $args = array(
-        'post_type' => ['post', 'service', 'blog'],
-        'posts_per_page' => 10,
-        's' => $search_query,
-        'post_status' => 'publish'
-    );
+    // Get all public post types
+    $post_types = get_post_types(['public' => true], 'objects');
     
-    $query = new WP_Query($args);
+    // Organize post types by category
+    $organized_types = [
+        'product' => [],
+        'post' => [],
+        'page' => [],
+        'other' => []
+    ];
     
-    if ($query->have_posts()) {
-        while ($query->have_posts()) {
-            $query->the_post();
-            echo '<div class="search-result-item">';
-            echo '<a href="' . esc_url(get_permalink()) . '">';
-            echo '<h4>' . esc_html(get_the_title()) . '</h4>';
-            echo '</a>';
-            echo '</div>';
+    foreach ($post_types as $post_type) {
+        $type_name = $post_type->name;
+        
+        // Skip attachments
+        if ($type_name === 'attachment') {
+            continue;
         }
-    } else {
-        echo '<div class="no-results">' . esc_html__('Không có kết quả', 'mms') . '</div>';
+        
+        // Categorize
+        if ($type_name === 'product') {
+            $organized_types['product'][] = $type_name;
+        } elseif ($type_name === 'post') {
+            $organized_types['post'][] = $type_name;
+        } elseif ($type_name === 'page') {
+            $organized_types['page'][] = $type_name;
+        } else {
+            $organized_types['other'][] = $type_name;
+        }
     }
     
-    wp_reset_postdata();
+    // Search Products (WooCommerce)
+    if (!empty($organized_types['product']) && class_exists('WooCommerce')) {
+        $products = new WP_Query([
+            'post_type' => 'product',
+            'posts_per_page' => 5,
+            's' => $search_query,
+            'post_status' => 'publish',
+        ]);
+        
+        if ($products->have_posts()) {
+            $has_results = true;
+            $html .= '<div class="search-results__section">';
+            $html .= '<h3 class="search-results__title"><strong>Sản phẩm liên quan:</strong></h3>';
+            $html .= '<div class="search-results__list">';
+            
+            while ($products->have_posts()) {
+                $products->the_post();
+                $thumbnail = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
+                
+                $html .= '<a href="' . esc_url(get_permalink()) . '" class="search-results__item">';
+                $html .= '<div class="search-results__image">';
+                $html .= '<img src="' . esc_url($thumbnail ?: $default_img) . '" alt="' . esc_attr(get_the_title()) . '">';
+                $html .= '</div>';
+                $html .= '<div class="search-results__content">';
+                $html .= '<h4 class="search-results__item-title">' . esc_html(get_the_title()) . '</h4>';
+                $html .= '</div>';
+                $html .= '</a>';
+            }
+            
+            $html .= '</div></div>';
+            wp_reset_postdata();
+        }
+    }
+    
+    // Search Posts
+    if (!empty($organized_types['post'])) {
+        $posts = new WP_Query([
+            'post_type' => 'post',
+            'posts_per_page' => 5,
+            's' => $search_query,
+            'post_status' => 'publish',
+        ]);
+        
+        if ($posts->have_posts()) {
+            $has_results = true;
+            $html .= '<div class="search-results__section">';
+            $html .= '<h3 class="search-results__title"><strong>Bài viết liên quan:</strong></h3>';
+            $html .= '<div class="search-results__list">';
+            
+            while ($posts->have_posts()) {
+                $posts->the_post();
+                $thumbnail = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
+                
+                $html .= '<a href="' . esc_url(get_permalink()) . '" class="search-results__item">';
+                $html .= '<div class="search-results__image">';
+                $html .= '<img src="' . esc_url($thumbnail ?: $default_img) . '" alt="' . esc_attr(get_the_title()) . '">';
+                $html .= '</div>';
+                $html .= '<div class="search-results__content">';
+                $html .= '<h4 class="search-results__item-title">' . esc_html(get_the_title()) . '</h4>';
+                $html .= '</div>';
+                $html .= '</a>';
+            }
+            
+            $html .= '</div></div>';
+            wp_reset_postdata();
+        }
+    }
+    
+    // Search Pages
+    if (!empty($organized_types['page'])) {
+        $pages = new WP_Query([
+            'post_type' => 'page',
+            'posts_per_page' => 5,
+            's' => $search_query,
+            'post_status' => 'publish',
+        ]);
+        
+        if ($pages->have_posts()) {
+            $has_results = true;
+            $html .= '<div class="search-results__section">';
+            $html .= '<h3 class="search-results__title"><strong>Trang liên quan:</strong></h3>';
+            $html .= '<div class="search-results__list">';
+            
+            while ($pages->have_posts()) {
+                $pages->the_post();
+                $thumbnail = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
+                
+                $html .= '<a href="' . esc_url(get_permalink()) . '" class="search-results__item">';
+                $html .= '<div class="search-results__image">';
+                $html .= '<img src="' . esc_url($thumbnail ?: $default_img) . '" alt="' . esc_attr(get_the_title()) . '">';
+                $html .= '</div>';
+                $html .= '<div class="search-results__content">';
+                $html .= '<h4 class="search-results__item-title">' . esc_html(get_the_title()) . '</h4>';
+                $html .= '</div>';
+                $html .= '</a>';
+            }
+            
+            $html .= '</div></div>';
+            wp_reset_postdata();
+        }
+    }
+    
+    // Search Other Custom Post Types
+    if (!empty($organized_types['other'])) {
+        foreach ($organized_types['other'] as $custom_type) {
+            $custom_posts = new WP_Query([
+                'post_type' => $custom_type,
+                'posts_per_page' => 3,
+                's' => $search_query,
+                'post_status' => 'publish',
+            ]);
+            
+            if ($custom_posts->have_posts()) {
+                $has_results = true;
+                $post_type_obj = get_post_type_object($custom_type);
+                $type_label = $post_type_obj->labels->name;
+                
+                $html .= '<div class="search-results__section">';
+                $html .= '<h3 class="search-results__title"><strong>' . esc_html($type_label) . ' liên quan:</strong></h3>';
+                $html .= '<div class="search-results__list">';
+                
+                while ($custom_posts->have_posts()) {
+                    $custom_posts->the_post();
+                    $thumbnail = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
+                    
+                    $html .= '<a href="' . esc_url(get_permalink()) . '" class="search-results__item">';
+                    $html .= '<div class="search-results__image">';
+                    $html .= '<img src="' . esc_url($thumbnail ?: $default_img) . '" alt="' . esc_attr(get_the_title()) . '">';
+                    $html .= '</div>';
+                    $html .= '<div class="search-results__content">';
+                    $html .= '<h4 class="search-results__item-title">' . esc_html(get_the_title()) . '</h4>';
+                    $html .= '</div>';
+                    $html .= '</a>';
+                }
+                
+                $html .= '</div></div>';
+                wp_reset_postdata();
+            }
+        }
+    }
+    
+    // No results found
+    if (!$has_results) {
+        $html = '<div class="search-results__empty">';
+        $html .= '<p>Không tìm thấy kết quả nào cho "<strong>' . esc_html($search_query) . '</strong>"</p>';
+        $html .= '</div>';
+    }
+    
+    // Return HTML
+    echo $html;
     wp_die();
 }
 

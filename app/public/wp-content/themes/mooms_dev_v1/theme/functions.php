@@ -102,8 +102,7 @@ add_action('after_setup_theme', function () {
     // Load theme components
     require_once APP_APP_SETUP_DIR . 'theme-support.php';
     require_once APP_APP_SETUP_DIR . 'menus.php';
-    require_once APP_APP_SETUP_DIR . 'ajax.php';
-
+    
     // Load advanced optimization modules
     require_once APP_APP_SETUP_DIR . 'assets.php';
 

@@ -138,9 +138,8 @@
 							<?php
 							wp_nav_menu([
 								'theme_location' => 'main-menu',
-								'menu_class'     => 'nav_menu',
 								'container'      => 'nav',
-								'container_class'=> 'header__nav-container',
+								'container_class'=> 'main-menu',
 								'walker'         => new MMS_Menu_Walker(),
 							]);
 							?>
@@ -148,9 +147,14 @@
 
 						<!-- search -->
 						<div class="header__bottom-search">
-							<button class="header__bottom-search-btn" data-modal="search">
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M512 128C512 89.6 473.4 64 432 64C390.6 64 352 89.6 352 128C352 166.4 390.6 192 432 192C473.4 192 512 166.4 512 128zM512 256C512 297.4 473.4 336 432 336C390.6 336 352 297.4 352 256C352 214.6 390.6 176 432 176C473.4 176 512 214.6 512 256z"/></svg>
-							</button>
+							<!-- <button class="header__bottom-search-btn" data-modal="search">
+							</button> -->
+							<div class="header__bottom-search-inner">
+								<form class="search-box">
+									<input type="text" placeholder="Tìm kiếm ..."/>
+									<button type="reset"></button>
+								</form>
+							</div>
 						</div>
 					</div>
 				</div>
